@@ -1,10 +1,14 @@
-SRC=pb.c
+.PHONY : all linux macosx
 
-TARGET=pb.so
-CFLAGS=`pkg-config --cflags lua5.1` -std=gnu99
-LDFLAGS=`pkg-config --libs lua5.1`
+# For Linux
+linux:
+	make pb.so "DLLFLAGS = -shared -fPIC"
+# For Mac OS
+macosx:
+	make pb.so "DLLFLAGS = -bundle -undefined dynamic_lookup"
 
-all:$(TARGET)
+pb.so : pb.c
+	env gcc -O2 -Wall $(DLLFLAGS) -o $@ $^ -D LUA_COMPAT_MODULE -llua -I/usr/local/include  -std=gnu99
 
-$(TARGET):$(SRC)
-	gcc -O3 -shared -fPIC $(SRC) $(CFLAGS) $(LDFLAGS) -o $@
+clean :
+	rm -f pb.so
